@@ -1,0 +1,217 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a1020">
+  <title>PacketWatch | Network Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#"><span class="brand-mark">P<span>W</span></span><span><b>packetwatch</b><small>NETWORK INTELLIGENCE</small></span></a>
+    <div class="side-label">WORKSPACE</div>
+    <button class="nav-item active" data-view="overview"><span>◫</span> Overview</button>
+    <button class="nav-item" data-view="train"><span>⌁</span> Model training</button>
+    <button class="nav-item" data-view="analyze"><span>⌘</span> Traffic analysis</button>
+    <div class="side-label side-label-lower">SYSTEM</div>
+    <button class="nav-item" data-view="architecture"><span>◇</span> AWS architecture</button>
+    <div class="sidebar-bottom"><span class="status-dot"></span><div><b>Analysis engine</b><small id="engine-status">Checking status…</small></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb">Workspace <span>/</span> <b id="crumb-title">Overview</b></div>
+      <div class="top-actions"><span class="live-pill"><i></i> LOCAL / EC2 INSTANCE</span><div class="avatar">PW</div></div>
+    </header>
+
+    <!-- PAGE 1: OVERVIEW -->
+    <section class="page-view active" id="view-overview">
+      <div class="hero">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-line"></span> NETWORK TRAFFIC ANALYSIS LAB</div>
+          <h1>Understand your<br><span>network traffic.</span></h1>
+          <p>PacketWatch uses a Random Forest machine-learning model to classify network-flow records as Normal Traffic or Suspicious Traffic. Start with synthetic data, evaluate the model, then analyze a fresh CSV.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-go="train">1. Train model <span>↗</span></button>
+            <button class="btn btn-ghost" data-go="analyze">2. Analyze traffic <span>→</span></button>
+          </div>
+        </div>
+        <div class="hero-graphic">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+          <div class="core"><span>PW</span><small>FLOW<br>ENGINE</small></div>
+          <div class="node node-a">TCP</div><div class="node node-b">UDP</div>
+          <div class="node node-c">HTTP</div><div class="node node-d">DNS</div><div class="scan-line"></div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div><span class="eyebrow">AT A GLANCE</span><h2>Model overview</h2></div>
+        <span class="muted mono" id="last-trained">MODEL · NOT TRAINED</span>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric-card"><div class="metric-top"><span>Model status</span><span class="metric-icon purple">⌘</span></div><div class="metric-value" id="metric-model">Not ready</div><div class="metric-foot"><span class="status-dot" id="model-dot"></span><span id="model-note">Train a model to begin</span></div></article>
+        <article class="metric-card"><div class="metric-top"><span>Test accuracy</span><span class="metric-icon blue">◎</span></div><div class="metric-value" id="metric-accuracy">—</div><div class="metric-foot">Correct predictions on held-out rows</div></article>
+        <article class="metric-card"><div class="metric-top"><span>F1 score</span><span class="metric-icon green">⌁</span></div><div class="metric-value" id="metric-f1">—</div><div class="metric-foot">Balance of precision and recall</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Features used</span><span class="metric-icon orange">⠿</span></div><div class="metric-value" id="metric-features">—</div><div class="metric-foot">Numeric flow attributes</div></article>
+      </div>
+
+      <div class="content-grid">
+        <article class="panel chart-panel">
+          <div class="panel-head"><div><h3>Training data labels</h3><p>Examples of each label used in the latest training run</p></div><span class="panel-tag">DATASET</span></div>
+          <div class="chart-wrap"><canvas id="label-chart"></canvas><div class="chart-empty" id="chart-empty">Train a model to view the label distribution.</div></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3>Model evaluation</h3><p>Held-out test results from the latest training run</p></div></div>
+          <div class="score-list">
+            <div><span>Precision</span><b id="metric-precision">—</b></div><div class="score-track"><i id="bar-precision"></i></div>
+            <div><span>Recall</span><b id="metric-recall">—</b></div><div class="score-track"><i id="bar-recall"></i></div>
+            <div><span>F1 score</span><b id="score-f1">—</b></div><div class="score-track"><i id="bar-f1"></i></div>
+          </div>
+          <div class="note-box"><span>ⓘ</span><p>Synthetic-data scores test the workflow; they do not prove real-world detection accuracy.</p></div>
+        </article>
+      </div>
+
+      <article class="panel recent-panel">
+        <div class="panel-head"><div><h3>How to use PacketWatch</h3><p>Follow these steps in order</p></div></div>
+        <div class="steps">
+          <div><span class="step-num">01</span><b>Prepare training data</b><p>Generate synthetic data or upload a labelled CSV containing a <code>Label</code> column.</p><button data-go="train">Open model training →</button></div>
+          <div><span class="step-num">02</span><b>Train and evaluate</b><p>Train Random Forest and review precision, recall, F1 and the confusion matrix.</p><button data-go="train">View training →</button></div>
+          <div><span class="step-num">03</span><b>Analyze fresh traffic</b><p>Score another CSV using the saved model and export its predictions.</p><button data-go="analyze">Analyze traffic →</button></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- PAGE 2: MODEL TRAINING -->
+    <section class="page-view" id="view-train">
+      <div class="page-title">
+        <div class="eyebrow">WORKFLOW 01 · LEARN FROM EXAMPLES</div>
+        <h1>Model training</h1>
+        <p>Training teaches the model patterns from labelled examples. Evaluation checks how well it predicts labels on records held out from training.</p>
+      </div>
+
+      <div class="explain-strip">
+        <div class="explain-icon">01</div>
+        <div><b>What happens on this page?</b><p>Choose labelled data → inspect its columns and class balance → train a Random Forest → review its evaluation. This page builds the model; it does not analyze new traffic.</p></div>
+      </div>
+
+      <div class="work-grid train-work-grid">
+        <article class="panel upload-panel">
+          <div class="panel-head"><div><h3>1. Choose training data</h3><p>CSV format · maximum 100,000 rows · 25 MB</p></div><span class="panel-tag">INPUT</span></div>
+          <label class="dropzone" for="train-file" id="train-drop"><span class="upload-symbol">↑</span><b>Choose a labelled traffic CSV</b><small>Click to browse or drag a .csv file here</small><span class="file-name" id="train-filename">No file selected</span></label>
+          <input type="file" id="train-file" accept=".csv" hidden>
+          <div class="file-hint"><b>Required:</b> a <code>Label</code> column. <code>BENIGN</code> is treated internally as class 0 (Normal Traffic); all other labels become class 1 (Suspicious Traffic).</div>
+
+          <div class="generator-box">
+            <div class="generator-copy"><b>Don't have a dataset?</b><small>Generate 100–500 simulated flow records for testing.</small></div>
+            <label class="generator-select-label" for="synthetic-count">Rows<select id="synthetic-count"><option value="100">100</option><option value="250" selected>250</option><option value="500">500</option></select></label>
+            <button class="btn btn-ghost" id="generate-btn">✦ Generate sample</button>
+          </div>
+          <div class="file-hint synthetic-note">Synthetic records are invented examples, not captured network traffic. Metrics on them do not prove real-world accuracy.</div>
+          <div class="button-row"><button class="btn btn-ghost" id="inspect-btn">Inspect dataset</button><button class="btn btn-primary" id="train-btn">Train model <span>↗</span></button></div>
+          <div class="progress-wrap" id="train-progress"><div class="progress-title"><span id="progress-label">Training model…</span><span class="spinner"></span></div><div class="progress-track"><i></i></div></div>
+          <div class="alert" id="train-alert" role="status"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div><h3>2. Understand the dataset</h3><p>Check the schema and labels before training</p></div><span class="panel-tag">DATA CHECK</span></div>
+          <div id="inspect-placeholder" class="empty-state"><span>⌗</span><b>No dataset inspected yet</b><p>Choose or generate a CSV, then click <b>Inspect dataset</b>. Check that a Label column exists and both classes are represented.</p></div>
+          <div id="inspect-results" class="hidden">
+            <div class="mini-stats"><div><small>Rows</small><b id="inspect-rows">—</b></div><div><small>Columns</small><b id="inspect-cols">—</b></div><div><small>Label field</small><b id="inspect-label">—</b></div></div>
+            <div class="subheading">Label counts</div><div id="label-chips" class="label-chips"></div>
+            <div class="subheading">First few records</div><div class="table-scroll"><table><thead id="preview-head"></thead><tbody id="preview-body"></tbody></table></div>
+          </div>
+        </article>
+      </div>
+
+      <article class="panel evaluation-panel">
+        <div class="panel-head"><div><h3>3. Model evaluation</h3><p>Scores measure performance on held-out test rows—not on rows used to fit the model.</p></div><span class="panel-tag">TEST REPORT</span></div>
+        <div class="evaluation-grid">
+          <div><small>Test accuracy</small><b id="eval-accuracy">—</b><p>Overall fraction correct</p></div>
+          <div><small>Precision</small><b id="eval-precision">—</b><p>How reliable attack alerts are</p></div>
+          <div><small>Recall</small><b id="eval-recall">—</b><p>How many attacks were detected</p></div>
+          <div><small>F1 score</small><b id="eval-f1">—</b><p>Balance of precision and recall</p></div>
+        </div>
+        <div class="report-details">
+          <div><h4>Confusion matrix</h4><p>Counts correct predictions and mistakes. A false negative is an attack incorrectly classified as Normal Traffic.</p></div>
+          <div id="confusion-wrap" class="confusion-wrap"><p>Train a model to populate the confusion matrix.</p></div>
+        </div>
+        <div class="report-details feature-section">
+          <div><h4>What features influenced the model?</h4><p>Random Forest feature importance estimates which input columns were useful to its trees. Importance does not prove cause and effect.</p></div>
+          <div id="importance-wrap" class="importance-list"><p>Feature importance appears after training if the API provides it.</p></div>
+        </div>
+        <div class="note-box"><span>ⓘ</span><p>Synthetic training and test rows can share the same generator patterns. For a stronger check, evaluate on a separately generated dataset. Do not present these scores as real-world accuracy.</p></div>
+      </article>
+    </section>
+
+    <!-- PAGE 3: TRAFFIC ANALYSIS -->
+    <section class="page-view" id="view-analyze">
+      <div class="page-title">
+        <div class="eyebrow">WORKFLOW 02 · APPLY THE MODEL</div>
+        <h1>Traffic analysis</h1>
+        <p>Use the saved model to score a different CSV. Each row receives a prediction: Normal Traffic or Suspicious Traffic.</p>
+      </div>
+
+      <div class="explain-strip">
+        <div class="explain-icon">02</div>
+        <div><b>What happens on this page?</b><p>Choose fresh traffic → PacketWatch aligns numeric columns with the trained model → the model predicts each row → review suspicious results and download the CSV. A Label column is optional because this is prediction, not training.</p></div>
+      </div>
+
+      <div class="work-grid analyze-work-grid">
+        <article class="panel upload-panel">
+          <div class="panel-head"><div><h3>1. Select traffic to analyze</h3><p>Use a different dataset from the training data when possible</p></div><span class="panel-tag">INPUT</span></div>
+          <label class="dropzone" for="analyze-file" id="analyze-drop"><span class="upload-symbol">↑</span><b>Choose a traffic CSV</b><small>Click to browse or drag a .csv file here</small><span class="file-name" id="analyze-filename">No file selected</span></label>
+          <input type="file" id="analyze-file" accept=".csv" hidden>
+          <div class="file-hint"><b>Input requirements:</b> provide numeric traffic features similar to those used during training. Matching column names matter; unmatched names cannot be inferred automatically.</div>
+          <div class="generator-box"><div class="generator-copy"><b>Need fresh test traffic?</b><small>Create another synthetic sample to try the saved model.</small></div><button class="btn btn-ghost" id="generate-analyze-btn">✦ Generate fresh sample</button></div>
+          <div class="button-row"><button class="btn btn-primary" id="analyze-btn">Analyze traffic <span>↗</span></button><button class="btn btn-ghost" id="download-btn" disabled>↓ Export CSV</button></div>
+          <div class="alert" id="analyze-alert" role="status"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><div><h3>2. Analysis summary</h3><p>Predictions for the submitted file</p></div><span class="panel-tag">RESULTS</span></div>
+          <div id="analysis-no-model" class="inline-warning hidden">No saved model found. Go to <button class="text-button" data-go="train">Model training</button> and train one first.</div>
+          <div class="analysis-stats">
+            <div class="analysis-stat"><small>Flows analyzed</small><b id="analysis-total">—</b></div>
+            <div class="analysis-stat attack-stat"><small>Suspicious traffic</small><b id="analysis-attacks">—</b></div>
+            <div class="analysis-stat benign-stat"><small>Normal traffic</small><b id="analysis-benign">—</b></div>
+          </div>
+          <div class="result-chart"><canvas id="result-chart"></canvas><div class="chart-empty" id="result-empty">Analyze a CSV to see the prediction breakdown.</div></div>
+          <p class="small-note">These are model predictions, not confirmed security incidents. Probability is the model's estimate, not a guarantee.</p>
+        </article>
+      </div>
+
+      <article class="panel results-panel">
+        <div class="panel-head results-heading"><div><h3>3. Flow-level results</h3><p>Search the preview and focus on suspicious predictions. The exported CSV contains all analyzed rows.</p></div><span class="panel-tag">PREDICTIONS</span></div>
+        <div id="results-placeholder" class="empty-state"><span>⌁</span><b>No analysis results yet</b><p>Choose or generate traffic above, then click <b>Analyze traffic</b>. Predictions will appear here.</p></div>
+        <div class="results-controls hidden" id="results-controls"><input id="results-search" type="search" placeholder="Search visible results…" aria-label="Search results"><select id="prediction-filter" aria-label="Filter by prediction"><option value="all">All predictions</option><option value="ATTACK">Suspicious Traffic</option><option value="BENIGN">Normal Traffic</option></select><span id="results-count" class="muted">0 rows</span></div>
+        <div class="table-scroll hidden" id="results-table-wrap"><table><thead id="results-head"></thead><tbody id="results-body"></tbody></table></div>
+      </article>
+    </section>
+
+    <!-- PAGE 4: AWS ARCHITECTURE -->
+    <section class="page-view" id="view-architecture">
+      <div class="page-title"><div class="eyebrow">CLOUD DEPLOYMENT</div><h1>AWS lab architecture</h1><p>A lightweight EC2 deployment with no containers or managed ML services required.</p></div>
+      <div class="architecture panel">
+        <div class="arch-node"><span>01</span><div><b>Browser client</b><small>HTML · CSS · JavaScript</small></div></div><div class="arch-connector">↓ HTTP</div>
+        <div class="arch-node highlight"><span>02</span><div><b>Ubuntu EC2 instance</b><small>FastAPI API + static frontend</small></div></div><div class="arch-connector">↓</div>
+        <div class="arch-node"><span>03</span><div><b>Python application layer</b><small>Pandas · scikit-learn · joblib</small></div></div><div class="arch-connector">↓</div>
+        <div class="arch-node"><span>04</span><div><b>Model + report files</b><small>Local disk on EC2 for lab MVP</small></div></div>
+        <div class="arch-side"><div><b>Security Group</b><small>SSH 22 + app 8000 restricted to your IP</small></div><div><b>systemd</b><small>Starts and restarts the service</small></div><div><b>CloudWatch</b><small>Planned: centralized logs, metrics and alarms. Verify integration before claiming live monitoring.</small></div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><div><h3>Lab talking points</h3><p>Explain the deployment in concrete AWS terms</p></div></div><div class="viva-list"><div><b>Why EC2?</b><p>A configurable Linux virtual machine hosts the Python API and trained model.</p></div><div><b>Why Security Groups?</b><p>They act as stateful virtual firewalls controlling traffic to the instance.</p></div><div><b>Why systemd?</b><p>It runs the API as a Linux service and can restart it after failure or reboot.</p></div><div><b>Why CloudWatch?</b><p>When configured, it can collect logs and metrics and trigger alarms when thresholds are breached.</p></div></div></div>
+    </section>
+
+    <footer>PACKETWATCH <span>·</span> AWS NETWORK ANALYSIS LAB <span class="footer-right">EDUCATIONAL MVP · OFFLINE FLOW ANALYSIS</span></footer>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
