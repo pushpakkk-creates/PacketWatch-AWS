@@ -6,8 +6,7 @@ A full-stack, Docker-free educational project with a custom HTML/CSS/JavaScript 
 - Frontend: HTML5, CSS3, vanilla JavaScript, Chart.js
 - Backend: Python 3.11, FastAPI, Uvicorn
 - Data/ML: Pandas, NumPy, scikit-learn Random Forest, Joblib
-- AWS: EC2 Ubuntu, Security Groups, systemd; CloudWatch optional
-- No Docker and no database required for the MVP
+- AWS: EC2 Ubuntu, Security Groups, systemd; CloudWatch
 
 ## Structure
 ```text
